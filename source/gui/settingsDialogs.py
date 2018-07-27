@@ -5,6 +5,7 @@
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
 
+from abc import abstractmethod
 import glob
 import os
 import copy
@@ -70,6 +71,7 @@ class SettingsDialog(wx.Dialog):
 
 	class MultiInstanceError(RuntimeError): pass
 
+	__metaclass__=guiHelper.SIPABCMeta
 	_instances=weakref.WeakSet()
 	title = ""
 	shouldSuspendConfigProfileTriggers = True
@@ -163,6 +165,7 @@ class SettingsDialog(wx.Dialog):
 		else:
 			evt.Skip()
 
+	@abstractmethod
 	def makeSettings(self, sizer):
 		"""Populate the dialog with settings controls.
 		Subclasses must override this method.
@@ -233,6 +236,7 @@ class SettingsPanel(wx.Panel):
 	@type title: str
 	"""
 
+	__metaclass__=guiHelper.SIPABCMeta
 	title=""
 
 	def __init__(self, parent):
@@ -255,6 +259,7 @@ class SettingsPanel(wx.Panel):
 		if gui._isDebug():
 			log.debug("Loading %s took %.2f seconds"%(self.__class__.__name__, time.time() - startTime))
 
+	@abstractmethod
 	def makeSettings(self, sizer):
 		"""Populate the panel with settings controls.
 		Subclasses must override this method.
@@ -276,6 +281,7 @@ class SettingsPanel(wx.Panel):
 		"""
 		self.Hide()
 
+	@abstractmethod
 	def onSave(self):
 		"""Take action in response to the parent's dialog OK or apply button being pressed.
 		Sub-classes should override this method.
