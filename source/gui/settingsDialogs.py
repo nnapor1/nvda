@@ -2497,7 +2497,7 @@ class VisionSettingsPanel(SettingsPanel):
 		pass
 
 class VisionProviderSelectionDialog(SettingsDialog):
-	# Translators: This is the label for the braille provider selection dialog.
+	# Translators: This is the label for the vision provider selection dialog.
 	title = _("Select Vision Providers")
 	availableRoles = tuple(role for role in vision.ROLE_TO_CLASS_MAP.iterkeys())
 
@@ -2513,13 +2513,13 @@ class VisionProviderSelectionDialog(SettingsDialog):
 	def makeSettings(self, settingsSizer):
 		sHelper = guiHelper.BoxSizerHelper(self, sizer=settingsSizer)
 
-		# Translators: The label for a setting in braille settings to choose a vision enhancement provider.
+		# Translators: The label for a setting in vision settings to choose a vision enhancement provider.
 		providerLabelText = _("&Vision enhancement providers:")
 		self.providerList = sHelper.addLabeledControl(providerLabelText, nvdaControls.CustomCheckListBox, choices=[])
 		self.providerList.Bind(wx.EVT_LISTBOX, self.onProviderSelected)
 		self.providerList.Bind(wx.EVT_CHECKLISTBOX, self.onProviderToggled)
 
-		# Translators: The label for a setting in braille settings to enable/disable the roles that should be enabled for vision enhancement providers.
+		# Translators: The label for a setting in vision settings to enable/disable the roles that should be enabled for vision enhancement providers.
 		rolesLabelText = _("&Use this provider as:")
 		self.rolesList = sHelper.addLabeledControl(rolesLabelText, nvdaControls.CustomCheckListBox, choices=[])
 		self.rolesList.Disable()

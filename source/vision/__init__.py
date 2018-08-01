@@ -231,6 +231,7 @@ class Magnifier(VisionEnhancementProvider):
 		"""Initializes a magnifier.
 		Subclasses must extend this method.
 		"""
+		self._cachedMagLevel = None
 
 	@abstractmethod
 	def terminateMagnifier(self):
@@ -267,6 +268,23 @@ class Magnifier(VisionEnhancementProvider):
 
 	def _set_magnificationLevel(self, level):
 		raise NotImplementedError
+
+	def _get_isMagnifying(self):
+		"""Returns C{True} if the magnifier is magnifying the screen, C{False} otherwise.
+		This property is based on L{enabled} and L{magnificationLevel}
+		"""
+		return self.enabled and self.magnificationLevel > 1
+
+	def toggleMagnifier(self):
+		"""Temporarily pauses the magnifier by setting the magnification level to 1.0.
+		If the magnification level is 1.0, the magnifier is restored to the last cached magnification level.
+		"""
+		if self.magnificationLevel > 1.0:
+			self._cachedMagLevel = self.magnificationLevel
+			self.magnificationLevel = 1.0
+		elif self._cachedMagLevel is not None:
+			self.magnificationLevel = self._cachedMagLevel
+			self._cachedMagLevel = None
 
 class ColorTransformation(
 	collections.namedtuple("ColorTransformation", ("name", "description", "value"))
@@ -462,7 +480,7 @@ class VisionHandler(AutoPropertyObject):
 			return
 		if obj is api.getFocusObject():
 			context = CONTEXT_FOCUS
-			if self.magnifier and self.magnifier.enabled:
+			if self.magnifier and self.magnifier.isMagnifying:
 				self.magnifier.trackToObject(obj, context=context)
 			if self.highlighter and self.highlighter.enabled and context in self.highlighter.supportedContexts:
 				self.highlighter.updateContextRect(context, obj=obj)
@@ -471,14 +489,14 @@ class VisionHandler(AutoPropertyObject):
 
 	def handleForeground(self, obj):
 		context = CONTEXT_FOREGROUND
-		if self.magnifier and self.magnifier.enabled:
+		if self.magnifier and self.magnifier.isMagnifying:
 			self.magnifier.trackToObject(obj, context=context)
 		if self.highlighter and self.highlighter.enabled and context in self.highlighter.supportedContexts:
 			self.highlighter.updateContextRect(context, obj=obj)
 
 	def handleGainFocus(self, obj):
 		context = CONTEXT_FOCUS
-		if self.magnifier and self.magnifier.enabled:
+		if self.magnifier and self.magnifier.isMagnifying:
 			self.magnifier.trackToObject(obj, context=context)
 		if self.highlighter and self.highlighter.enabled:
 			if context in self.highlighter.supportedContexts:
@@ -505,7 +523,7 @@ class VisionHandler(AutoPropertyObject):
 			return
 		context = CONTEXT_CARET
 		try:
-			if self.magnifier and self.magnifier.enabled:
+			if self.magnifier and self.magnifier.isMagnifying:
 				self.magnifier.trackToObject(obj, context=context)
 			if self.highlighter and self.highlighter.enabled and context in self.highlighter.supportedContexts:
 				self.highlighter.updateContextRect(context, obj=obj)
@@ -523,7 +541,7 @@ class VisionHandler(AutoPropertyObject):
 			return
 		lastReviewMoveContext = self.lastReviewMoveContext
 		self.lastReviewMoveContext = None
-		if lastReviewMoveContext in (CONTEXT_NAVIGATOR, CONTEXT_REVIEW) and self.magnifier and self.magnifier.enabled:
+		if lastReviewMoveContext in (CONTEXT_NAVIGATOR, CONTEXT_REVIEW) and self.magnifier and self.magnifier.isMagnifying:
 			self.magnifier.trackToObject(context=lastReviewMoveContext)
 		if self.highlighter and self.highlighter.enabled:
 			for context in (CONTEXT_NAVIGATOR, CONTEXT_REVIEW):
@@ -532,7 +550,7 @@ class VisionHandler(AutoPropertyObject):
 
 	def handleMouseMove(self, obj, x, y):
 		# Mouse moves execute once per core cycle.
-		if self.magnifier and self.magnifier.enabled:
+		if self.magnifier and self.magnifier.isMagnifying:
 			self.magnifier.trackToPoint((x, y), context=CONTEXT_MOUSE)
 
 	def handleConfigProfileSwitch(self):
