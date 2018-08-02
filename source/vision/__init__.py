@@ -231,7 +231,6 @@ class Magnifier(VisionEnhancementProvider):
 		"""Initializes a magnifier.
 		Subclasses must extend this method.
 		"""
-		self._cachedMagLevel = None
 
 	@abstractmethod
 	def terminateMagnifier(self):
@@ -274,17 +273,6 @@ class Magnifier(VisionEnhancementProvider):
 		This property is based on L{enabled} and L{magnificationLevel}
 		"""
 		return self.enabled and self.magnificationLevel > 1
-
-	def toggleMagnifier(self):
-		"""Temporarily pauses the magnifier by setting the magnification level to 1.0.
-		If the magnification level is 1.0, the magnifier is restored to the last cached magnification level.
-		"""
-		if self.magnificationLevel > 1.0:
-			self._cachedMagLevel = self.magnificationLevel
-			self.magnificationLevel = 1.0
-		elif self._cachedMagLevel is not None:
-			self.magnificationLevel = self._cachedMagLevel
-			self._cachedMagLevel = None
 
 class ColorTransformation(
 	collections.namedtuple("ColorTransformation", ("name", "description", "value"))
