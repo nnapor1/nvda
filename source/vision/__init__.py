@@ -365,7 +365,7 @@ class VisionHandler(AutoPropertyObject):
 		for name, roles in configuredProviders.iteritems():
 			if name:
 				wx.CallAfter(self.setProvider, name, *roles)
-		config.configProfileSwitched.register(self.handleConfigProfileSwitch)
+		config.post_configProfileSwitch.register(self.handleConfigProfileSwitch)
 
 	def terminateProviderForRole(self, role):
 		curProvider = getattr(self, role)
@@ -459,7 +459,7 @@ class VisionHandler(AutoPropertyObject):
 		return bool(self.initializedProviders)
 
 	def terminate(self):
-		config.configProfileSwitched.unregister(self.handleConfigProfileSwitch)
+		config.post_configProfileSwitch.unregister(self.handleConfigProfileSwitch)
 		for role in ROLE_TO_CLASS_MAP.iterkeys():
 			self.terminateProviderForRole(role)
 
